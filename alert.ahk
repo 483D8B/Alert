@@ -13,7 +13,7 @@ chromePaths := ["C:\Program Files\Google\Chrome\Application\chrome.exe ", "chrom
 if !WinExist(title) {
     for index, path in chromePaths {
         try {
-            Run(path . "--app=https://483d8b.github.io/Alert/")
+            Run(path . "--app=https://tinyurl.com/bde4e54a")
             WinWait(title)
 
             ; Change the window icon using the Windows API
