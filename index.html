@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+
+    <meta charset="utf-8">
+    <meta http-equiv="content-language" content="en">
+    <title>~~</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --alertColour: #FF7417;
+            --white: #fafafa;
+            --black: #222;
+        }
+
+        * {
+            scrollbar-color: #483d8b aliceblue;
+            scrollbar-width: thin;
+            caret-color: var(--black);
+            font-family: "Space Mono", monospace;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .space-mono-regular {
+            font-family: "Space Mono", monospace;
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        ::-moz-selection {
+            color: var(--white);
+            background-color: var(--black);
+        }
+
+        ::selection {
+            color: var(--white);
+            background-color: var(--black);
+        }
+
+        .modal ::selection {
+            color: var(--black);
+            background-color: var(--white);
+        }
+
+
+        /* Works on Chrome, Edge, and Safari */
+        *::-webkit-scrollbar {
+            width: 1px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: var(--white);
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background-color: var(--black);
+            border-radius: 20px;
+            border: 3px solid var(--white);
+        }
+
+        body {
+            background-color: var(--black);
+        }
+
+        textarea {
+            resize: none;
+            outline: none;
+            border: 2px solid var(--white);
+            border-radius: 5px;
+            font-size: 1.2rem;
+            color: var(--white);
+            background-color: var(--black);
+            caret-color: var(--white);
+            padding: 0.2em;
+        }
+
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .modal-content {
+            position: relative;
+            display: flex;
+            gap: 0.2em;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--black);
+            margin: 5% auto;
+            padding: 2em;
+            width: fit-content;
+            border: 3px solid var(--white);
+            border-radius: 5px;
+            color: var(--white);
+            max-height: 90%;
+            max-width: 80%;
+        }
+
+        .close {
+            position: absolute;
+            color: var(--white);
+            font-size: 2rem;
+            top: 0;
+            right: 0;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: red;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+
+        #saveAlarm {
+            color: var(--white);
+            background-color: var(--black);
+            border: 2px solid var(--white);
+            padding: 0.5em;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        #saveAlarm:hover {
+            background-color: var(--white);
+            color: var(--black);
+        }
+
+        #alarmTime {
+            font-size: 1.2rem;
+            border-radius: 5px;
+            text-align: center;
+            border: 2px solid var(--white);
+            background-color: var(--black);
+            color: var(--white);
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            height: 100vh;
+            padding: 10px;
+        }
+
+        #addAlarmBtn {
+            font-size: 1.5rem;
+            line-height: 10px;
+            text-align: center;
+            border: 1px solid var(--black);
+            background-color: var(--white);
+            color: var(--black);
+            font-weight: 600;
+            border-radius: 5px;
+            padding: 0.3em;
+            aspect-ratio: 1/1;
+            z-index: 100;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        #addAlarmBtn:hover {
+            background-color: var(--black);
+            color: var(--white);
+            outline: 2px solid var(--white);
+        }
+
+        #alarmsContainer {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100%;
+        }
+
+        .form-container {
+            display: grid;
+            grid-template-columns: 0.25fr 1fr;
+            gap: 10px;
+            align-items: start;
+        }
+
+        .form-group {
+            display: contents;
+            position: relative;
+        }
+
+        label {
+            color: var(--white);
+            font-size: 0.8rem;
+            text-align: left;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            text-align: left;
+        }
+
+        input[type="time"] {
+            max-width: 100px;
+        }
+
+        /* Additional styles to ensure the change is applied across different browsers */
+        input[type="time"]::-webkit-inner-spin-button,
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            color: #222;
+        }
+
+        input[type="time"]::-webkit-input-placeholder {
+            color: #222;
+        }
+
+        input[type="time"]::-moz-placeholder {
+            color: #222;
+        }
+
+        input[type="time"]:-ms-input-placeholder {
+            color: #222;
+        }
+
+        input[type="time"]:-moz-placeholder {
+            color: #222;
+        }
+
+
+
+
+        input[type="number"] {
+            background-color: var(--black);
+            border: 2px solid var(--white);
+            color: var(--white);
+            max-width: 100px;
+            font-size: 1.2rem;
+        }
+
+        textarea:not([id="alarmMessage"]) {
+            max-width: 100px;
+        }
+
+
+
+        @keyframes blink {
+            0% {
+                background-color: var(--alertColour);
+            }
+
+            25% {
+                background-color: var(--white);
+            }
+
+            50% {
+                background-color: var(--alertColour);
+            }
+
+            75% {
+                background-color: var(--white);
+            }
+
+            100% {
+                background-color: var(--alertColour);
+            }
+        }
+
+        .blinking {
+            animation: blink 3s step-start infinite;
+        }
+
+        .secure-reminder {
+            animation: secureBlinking 4s infinite;
+        }
+
+        @keyframes secureBlinking {
+            0% {
+                background-color: rgb(255, 116, 23, 0.8);
+                color: var(--white);
+            }
+
+            50% {
+                background-color: rgb(255, 116, 23, 0.5);
+                color: var(--white);
+            }
+
+            100% {
+                background-color: rgb(255, 116, 23, 0.8);
+                color: var(--white);
+            }
+        }
+
+        .alarm {
+            position: relative;
+            height: fit-content;
+            background-color: var(--white);
+            border: 2px solid var(--black);
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            font-size: 1rem;
+            font-weight: 600;
+            align-content: stretch;
+            margin-bottom: 1px;
+            border-radius: 10px;
+            word-break: normal;
+            overflow-wrap: break-word;
+            padding: 1em;
+            opacity: 0.5;
+        }
+
+        .alarm-state {
+            position: absolute;
+            width: 50px;
+            height: 40px;
+            border-radius: 5px;
+            display: inline-block;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            border: 2px solid var(--black);
+            background-color: transparent;
+        }
+
+
+        .alarm-time {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8rem;
+            color: var(--black) !important;
+            font-weight: bold;
+        }
+
+        .alarm-message {
+            font-size: 1.2rem;
+            color: var(--black);
+            max-width: calc(100% - 70px);
+            min-height: 1em;
+            margin-left: 70px;
+            margin-top: 10px;
+        }
+
+        .alarm-priority {
+            position: absolute;
+            top: 10px;
+            right: 5px;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            color: var(--black);
+            font-weight: bold;
+        }
+
+        .selettiva {
+            position: absolute;
+            top: 2px;
+            right: 50%;
+            transform: translateX(50%);
+            font-size: 1rem;
+            color: var(--white);
+            background-color: var(--black);
+            font-weight: bold;
+            border-radius: 5px;
+            padding: 1px 5px;
+        }
+
+        .drop-line {
+            position: relative;
+            height: 5px;
+            background-color: var(--white);
+            margin: 0;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        .secure-reminder p,
+        .secure-reminder span {
+            color: var(--white);
+        }
+
+        .secure-reminder .selettiva {
+            color: var(--white);
+            background-color: var(--black);
+            border-radius: 5px;
+            padding: 1px 5px;
+        }
+
+        .edit-alarm-btn {
+            position: absolute;
+            bottom: -7px;
+            right: 2px;
+            transform: translateY(-50%);
+            color: var(--black);
+            font-weight: bold;
+            border: 1px solid transparent;
+            font-size: 0.8rem;
+            border-radius: 5px;
+            background-color: var(--white);
+            opacity: 0.2;
+        }
+
+        .edit-alarm-btn:hover {
+            border-radius: 5px;
+            box-shadow: 0 0 0 2px var(--white);
+            background-color: var(--black);
+            color: var(--white);
+            opacity: 1;
+        }
+
+        .suggestions {
+            position: absolute;
+            max-height: 200px;
+            overflow-y: auto;
+            left: 63%;
+            top: 55%;
+            background-color: #fafafa;
+            color: #222;
+            width: 100px;
+        }
+
+        .suggestions div {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .suggestions div:hover {
+            background-color: #222;
+            color: #fafafa;
+            border: 1px solid #fafafa;
+        }
+
+        @media print {
+            .edit-alarm-btn {
+                display: none !important;
+            }
+
+            #addAlarmBtn {
+                display: none !important;
+            }
+
+            #alarmsContainer {
+                background-color: white;
+                color: var(--black);
+                gap: 0.5em;
+            }
+
+            body {
+                background-color: white !important;
+                color: var(--black) !important;
+            }
+
+            .alarm {
+                background-color: white !important;
+                color: var(--black) !important;
+            }
+
+            p {
+                color: var(--black) !important;
+            }
+
+            .alarm-state {
+                background-color: white !important;
+                color: var(--black) !important;
+                display: none !important;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <div class="container">
+        <button id="addAlarmBtn">+</button>
+        <div id="alarmsContainer"></div>
+    </div>
+
+
+
+    <!-- Modal for adding a new alarm -->
+    <div id="alarmModal" class="modal">
+        <div class="modal-content">
+            <span id="closeModal" class="close">&times;</span>
+
+            <div class="form-container">
+                <div class="form-group">
+                    <label for="alarmTime" class="label">Time:</label>
+                    <input type="time" id="alarmTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="alarmMessage" class="label">Messaggio: (opzionale)</label>
+                    <textarea name="message" id="alarmMessage"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="selettiva" class="label">Selettiva:</label>
+                    <textarea id="selettiva" rows="1" cols="5" oninput="handleInput()"></textarea>
+                    <div id="suggestions" class="suggestions"></div>
+                </div>
+            </div>
+
+            <button id="saveAlarm">Aggiungi</button>
+        </div>
+    </div>
+
+
+
+
+
+
+
+    <script>
+        // Get references to elements
+        var addAlarmBtn = document.getElementById('addAlarmBtn');
+        var alarmModal = document.getElementById('alarmModal');
+        var closeModalBtn = document.getElementById('closeModal');
+        var saveAlarmBtn = document.getElementById('saveAlarm');
+        var alarmsContainer = document.getElementById('alarmsContainer');
+
+        // Track the alarm being edited (null if adding a new alarm)
+        var editingAlarmId = null;
+
+        associazioni = loadAssociazioniFromLocalStorage();
+
+        // Show modal when clicking the add button (for adding a new alarm)
+        addAlarmBtn.addEventListener('click', function () {
+            editingAlarmId = null; // Reset editing mode
+            clearModalFields(); // Clear modal fields for new entry
+            alarmModal.style.display = 'block';
+        });
+
+        // Close modal when clicking the close (X) button
+        closeModalBtn.addEventListener('click', function () {
+            alarmModal.style.display = 'none';
+            const suggestionsDiv = document.getElementById("suggestions");
+            suggestionsDiv.innerHTML = "";
+            suggestionsDiv.style.display = "none";
+        });
+
+        // Load alarms from localStorage when the page loads
+        window.onload = function () {
+            loadAlarmsFromLocalStorage();
+            checkAlarmTimes(); // Start checking alarm times
+
+            setInterval(checkAlarmTimes, 5000);
+        };
+
+        // Save alarm when the "Save Alarm" button is clicked (add or edit)
+        saveAlarmBtn.addEventListener('click', function () {
+            var alarmTime = document.getElementById('alarmTime').value;
+            var alarmMessage = document.getElementById('alarmMessage').value;
+            var selettiva = document.getElementById('selettiva').value;
+
+            if (!alarmTime) {
+                alert('Please set the time for the alarm.');
+                return;
+            }
+
+            if (editingAlarmId === null) {
+                // Adding a new alarm
+                var newAlarm = {
+                    id: new Date().getTime(),
+                    time: alarmTime,
+                    message: alarmMessage,
+                    selettiva: selettiva,
+                    day: new Date().toISOString().split('T')[0] // Save current day
+
+                };
+
+                // Add new alarm to the DOM
+                addAlarmToDOM(newAlarm);
+
+                // Save new alarm to localStorage
+                saveAlarmToLocalStorage(newAlarm);
+            } else {
+                // Editing an existing alarm
+                var savedAlarms = JSON.parse(localStorage.getItem('alarms')) || [];
+                var alarmIndex = savedAlarms.findIndex(alarm => alarm.id === editingAlarmId);
+
+                if (alarmIndex !== -1) {
+                    // Update the alarm data
+                    savedAlarms[alarmIndex].time = alarmTime;
+                    savedAlarms[alarmIndex].message = alarmMessage;
+                    savedAlarms[alarmIndex].selettiva = selettiva;
+
+                    // Save updated alarms to localStorage
+                    localStorage.setItem('alarms', JSON.stringify(savedAlarms));
+
+                    // Update the DOM with the new alarm data
+                    updateAlarmInDOM(savedAlarms[alarmIndex]);
+                }
+            }
+
+            // Close modal and clear fields
+            alarmModal.style.display = 'none';
+            clearModalFields();
+
+            // Check for updated alarms immediately
+            checkAlarmTimes();
+        });
+
+        let dropLine; // Variable for the line element
+
+        // Function to add an alarm to the DOM
+        function addAlarmToDOM(alarm) {
+            var newAlarmElement = document.createElement('div');
+            newAlarmElement.classList.add('alarm');
+            newAlarmElement.setAttribute('data-alarm-id', alarm.id);
+            newAlarmElement.setAttribute('draggable', true); // Make the alarm draggable
+            newAlarmElement.style.opacity = '0.8'; // Set opacity to 0.8
+
+            // Create a state div for blinking effect
+            var stateDiv = document.createElement('div');
+            stateDiv.classList.add('alarm-state'); // Add a class for styling the state div
+
+            // Create time span and assign a class
+            var timeSpan = document.createElement('span');
+            timeSpan.textContent = alarm.time;
+            timeSpan.classList.add('alarm-time'); // Add a class for time styling
+
+            // Append the time span to the state div
+            stateDiv.appendChild(timeSpan);
+
+            // Create message paragraph and assign a class
+            var messageParagraph = document.createElement('p');
+            messageParagraph.textContent = alarm.message || "";;
+            messageParagraph.classList.add('alarm-message'); // Add a class for message styling
+
+            newAlarmElement.appendChild(stateDiv); // Append state div to the alarm element
+            newAlarmElement.appendChild(messageParagraph); // Append message paragraph to the alarm element
+
+            // Add priority to the alarm (if needed)
+            var priorityParagraph = document.createElement('p');
+            priorityParagraph.textContent = alarm.priority;
+            priorityParagraph.classList.add('alarm-priority');
+
+            // Add hour information (if needed)
+            var selettivaParagraph = document.createElement('p');
+            selettivaParagraph.textContent = alarm.selettiva;
+            selettivaParagraph.classList.add('selettiva');
+
+            newAlarmElement.appendChild(priorityParagraph); // Append priority paragraph to the alarm element
+            newAlarmElement.appendChild(selettivaParagraph); // Append priority hour paragraph to the alarm element
+
+            var editButton = document.createElement('button');
+            editButton.textContent = 'Edit';
+            editButton.classList.add('edit-alarm-btn');
+
+            editButton.addEventListener('click', function () {
+                editAlarm(alarm);
+            });
+
+            newAlarmElement.appendChild(editButton);
+
+            // Add double-click event to remove the alarm
+            newAlarmElement.addEventListener('dblclick', function () {
+                alarmsContainer.removeChild(newAlarmElement);
+                removeAlarmFromLocalStorage(alarm.id);
+            });
+
+            // Add drag event listeners
+            newAlarmElement.addEventListener('dragstart', function (event) {
+                event.dataTransfer.setData('text/plain', alarm.id); // Set the id of the alarm being dragged
+                setTimeout(() => {
+                    newAlarmElement.style.display = 'none'; // Hide the element being dragged
+                }, 0);
+            });
+
+            newAlarmElement.addEventListener('dragend', function () {
+                newAlarmElement.style.display = 'block'; // Show the element again when done dragging
+                if (dropLine) {
+                    alarmsContainer.removeChild(dropLine); // Remove drop line
+                    dropLine = null;
+                }
+            });
+
+            // Find the correct position to insert the new alarm
+            var alarmElements = document.querySelectorAll('.alarm');
+            var insertIndex = 0;
+            for (var i = 0; i < alarmElements.length; i++) {
+                var alarmTime = new Date('1970-01-01T' + alarmElements[i].querySelector('.alarm-time').textContent);
+                var newAlarmTime = new Date('1970-01-01T' + alarm.time);
+                if (newAlarmTime.getTime() < alarmTime.getTime()) {
+                    insertIndex = i;
+                    break;
+                }
+            }
+
+            // Insert the new alarm element at the correct position
+            if (insertIndex === alarmElements.length) {
+                alarmsContainer.appendChild(newAlarmElement);
+            } else {
+                alarmsContainer.insertBefore(newAlarmElement, alarmElements[insertIndex]);
+            }
+
+            // Allow dropping on the alarmsContainer
+            alarmsContainer.addEventListener('dragover', function (event) {
+                event.preventDefault(); // Prevent default to allow drop
+            });
+
+            // Handle dropping of alarm
+            alarmsContainer.addEventListener('drop', function (event) {
+                event.preventDefault();
+                if (dropLine) {
+                    alarmsContainer.removeChild(dropLine); // Remove drop line
+                    dropLine = null; // Clear drop line reference
+                }
+
+                var draggedAlarmId = event.dataTransfer.getData('text/plain');
+                var draggedAlarmElement = document.querySelector(`.alarm[data-alarm-id='${draggedAlarmId}']`);
+                if (draggedAlarmElement) {
+                    // Get the alarm element where the dragged alarm is dropped
+                    var targetAlarm = event.target.closest('.alarm');
+                    if (targetAlarm && targetAlarm !== draggedAlarmElement) {
+                        // Insert the dragged alarm before the target alarm
+                        alarmsContainer.insertBefore(draggedAlarmElement, targetAlarm);
+                    }
+                }
+            });
+
+            // Highlighting the target alarm on drag over
+            newAlarmElement.addEventListener('dragover', function (event) {
+                event.preventDefault();
+
+                // Remove existing drop line if present
+                if (dropLine) {
+                    alarmsContainer.removeChild(dropLine); // Remove previous drop line
+                }
+
+                // Create a new drop line element
+                dropLine = document.createElement('div');
+                dropLine.classList.add('drop-line'); // Add a class for styling
+
+                // Check if we're dragging to the first or last position
+                if (!event.target.nextElementSibling) {
+                    // Insert drop line at the end of the container
+                    alarmsContainer.appendChild(dropLine);
+                } else {
+                    // Insert drop line before the current alarm
+                    alarmsContainer.insertBefore(dropLine, newAlarmElement);
+                }
+            });
+
+            alarmsContainer.appendChild(newAlarmElement);
+
+            sortAlarmsInDOM();
+        }
+
+        function sortAlarmsInDOM() {
+            var alarmElements = Array.from(document.querySelectorAll('.alarm'));
+            alarmElements.sort((a, b) => {
+                var alarmTimeA = new Date('1970-01-01T' + a.querySelector('.alarm-time').textContent);
+                var alarmTimeB = new Date('1970-01-01T' + b.querySelector('.alarm-time').textContent);
+                return alarmTimeA.getTime() - alarmTimeB.getTime();
+            });
+
+            alarmElements.forEach(alarmElement => {
+                alarmsContainer.appendChild(alarmElement);
+            });
+        }
+
+        // Clear modal fields after saving or when opening for a new entry
+        function clearModalFields() {
+            document.getElementById('alarmTime').value = '';
+            document.getElementById('alarmMessage').value = '';
+            document.getElementById('selettiva').value = '';
+        }
+
+        // Function to update an alarm in the DOM
+        function updateAlarmInDOM(alarm) {
+            var alarmElement = document.querySelector(`.alarm[data-alarm-id='${alarm.id}']`);
+
+            if (alarmElement) {
+                alarmElement.querySelector('.alarm-time').textContent = alarm.time;
+                alarmElement.querySelector('.alarm-message').textContent = alarm.message;
+                alarmElement.querySelector('.alarm-priority').textContent = alarm.priority;
+                alarmElement.querySelector('.selettiva').textContent = alarm.selettiva;
+            }
+        }
+
+
+        // Show modal when editing an existing alarm
+        function editAlarm(alarm) {
+            editingAlarmId = alarm.id; // Set the ID of the alarm being edited
+
+            // Populate the modal fields with the alarm data
+            document.getElementById('alarmTime').value = alarm.time;
+            document.getElementById('alarmMessage').value = alarm.message;
+            document.getElementById('selettiva').value = alarm.selettiva;
+
+            alarmModal.style.display = 'block'; // Show the modal
+        }
+
+
+        // Function to save an alarm to localStorage
+        function saveAlarmToLocalStorage(alarm) {
+            var savedAlarms = JSON.parse(localStorage.getItem('alarms')) || [];
+            savedAlarms.push(alarm);
+            localStorage.setItem('alarms', JSON.stringify(savedAlarms));
+        }
+
+        // Function to remove an alarm from localStorage
+        function removeAlarmFromLocalStorage(alarmId) {
+            var savedAlarms = JSON.parse(localStorage.getItem('alarms')) || [];
+            savedAlarms = savedAlarms.filter(alarm => alarm.id !== alarmId);
+            localStorage.setItem('alarms', JSON.stringify(savedAlarms));
+        }
+
+        // Function to save alarms to localStorage in the current order
+        function saveAlarmsOrderToLocalStorage() {
+            const alarms = Array.from(alarmsContainer.children).map(alarmElement => {
+                return {
+                    id: alarmElement.getAttribute('data-alarm-id'),
+                    time: alarmElement.querySelector('.alarm-time').textContent,
+                    message: alarmElement.querySelector('.alarm-message').textContent,
+                    selettiva: alarmElement.querySelector('.selettiva')?.textContent || '',
+                    day: new Date().toISOString().split('T')[0] // Save current day
+                };
+            });
+            localStorage.setItem('alarms', JSON.stringify(alarms));
+        }
+
+        // Handle dropping of alarm and saving order
+        alarmsContainer.addEventListener('drop', function (event) {
+            event.preventDefault();
+            if (dropLine) {
+                alarmsContainer.removeChild(dropLine); // Remove drop line
+                dropLine = null; // Clear drop line reference
+            }
+
+            var draggedAlarmId = event.dataTransfer.getData('text/plain');
+            var draggedAlarmElement = document.querySelector(`.alarm[data-alarm-id='${draggedAlarmId}']`);
+            if (draggedAlarmElement) {
+                // Get the alarm element where the dragged alarm is dropped
+                var targetAlarm = event.target.closest('.alarm');
+                if (targetAlarm && targetAlarm !== draggedAlarmElement) {
+                    // Insert the dragged alarm before the target alarm
+                    alarmsContainer.insertBefore(draggedAlarmElement, targetAlarm);
+                } else {
+                    // If dropped at the end, append to the container
+                    alarmsContainer.appendChild(draggedAlarmElement);
+                }
+                // Save the new order to localStorage
+                saveAlarmsOrderToLocalStorage();
+            }
+        });
+
+        // Function to load alarms from localStorage
+        function loadAlarmsFromLocalStorage() {
+            var savedAlarms = JSON.parse(localStorage.getItem('alarms')) || [];
+
+            // Sort the alarms by time
+            savedAlarms.sort(function (a, b) {
+                return new Date('1970-01-01T' + a.time) - new Date('1970-01-01T' + b.time);
+            });
+
+            savedAlarms.forEach(function (alarm) {
+                addAlarmToDOM(alarm);
+            });
+            // Save the order after loading
+            saveAlarmsOrderToLocalStorage();
+        }
+
+        // Function to check alarm times and handle secure reminders
+        function checkAlarmTimes() {
+            var currentDateTime = new Date();
+
+            // Check each alarm
+            document.querySelectorAll('.alarm').forEach(function (alarmElement) {
+                var alarmId = alarmElement.getAttribute('data-alarm-id');
+                var alarmData = JSON.parse(localStorage.getItem('alarms')).find(alarm => alarm.id == alarmId);
+                var alarmDateTime = new Date(currentDateTime.toDateString() + ' ' + alarmData.time);
+
+                // Get the state div for blinking
+                var stateDiv = alarmElement.querySelector('.alarm-state');
+
+                // Check if the current day is the same as the saved day
+                if (currentDateTime >= alarmDateTime && alarmData.day === currentDateTime.toISOString().split('T')[0]) {
+                    stateDiv.classList.add('blinking'); // Apply blinking class to the state div
+
+                    // Set a timeout for 5 minutes after the alarm time
+                    var reminderTime = new Date(alarmDateTime.getTime() + 5 * 60 * 1000); // 5 minutes later
+                    if (currentDateTime >= reminderTime) {
+                        alarmElement.classList.add('secure-reminder'); // Add secure reminder class to the alarm
+                    }
+                } else {
+                    stateDiv.classList.remove('blinking'); // Remove blinking class if not active
+                    alarmElement.classList.remove('secure-reminder'); // Remove secure reminder class if not active
+                }
+            });
+        }
+
+        // Gestione input
+        function handleInput() {
+            const input = document.getElementById("selettiva");
+            const query = input.value.trim();
+
+            // Se il valore è di 5 cifre, aggiungilo a `associazioni`
+            if (query.length === 5) {
+                const associazione = query.slice(0, 3);  // Prime tre cifre
+                const identificativo = query.slice(3);   // Ultime due cifre
+
+                // Controlla se l'associazione esiste già
+                if (!associazioni[associazione]) {
+                    associazioni[associazione] = []; // Crea una nuova lista per l'associazione
+                }
+
+                // Aggiungi l'identificativo solo se non è già presente
+                if (!associazioni[associazione].includes(identificativo)) {
+                    associazioni[associazione].push(identificativo);
+                    saveAssociazioniToLocalStorage(); // Salva aggiornamenti nel localStorage
+                }
+            }
+
+            // Mostra i suggerimenti basati sulle prime tre cifre
+            showSuggestions(query);
+        }
+
+        // Mostra i suggerimenti
+        function showSuggestions(query) {
+            const suggestionsDiv = document.getElementById("suggestions");
+
+            // Nascondi i suggerimenti se il campo è vuoto o l'input è inferiore a 3 cifre
+            if (query === "" || query.length < 3) {
+                suggestionsDiv.innerHTML = "";
+                suggestionsDiv.style.display = "none";
+                return;
+            }
+
+            // Estrai le prime tre cifre
+            const associazione = query.slice(0, 3);
+
+            // Controlla se abbiamo identificativi per questa associazione
+            const identificativi = associazioni[associazione] || [];
+
+            // Svuota i suggerimenti precedenti
+            suggestionsDiv.innerHTML = "";
+
+            // Mostra i suggerimenti solo se ci sono identificativi per l'associazione corrente
+            identificativi.forEach(id => {
+                const suggestionItem = document.createElement("div");
+                suggestionItem.textContent = associazione + id;
+
+                // Aggiungi un click handler per riempire l'input con il suggerimento selezionato
+                suggestionItem.addEventListener("click", () => {
+                    document.getElementById("selettiva").value = associazione + id;
+                    suggestionsDiv.innerHTML = "";  // Pulisci i suggerimenti
+                    suggestionsDiv.style.display = "none";  // Nascondi il contenitore
+                });
+
+                suggestionsDiv.appendChild(suggestionItem);
+            });
+
+            // Mostra i suggerimenti solo se ci sono risultati
+            if (identificativi.length > 0) {
+                suggestionsDiv.style.display = "block";
+            } else {
+                suggestionsDiv.style.display = "none";
+            }
+        }
+
+        // Salva le associazioni nel localStorage
+        function saveAssociazioniToLocalStorage() {
+            localStorage.setItem('associazioni', JSON.stringify(associazioni));
+        }
+
+        // Carica le associazioni dal localStorage
+        function loadAssociazioniFromLocalStorage() {
+            const savedAssociazioni = localStorage.getItem('associazioni');
+            return savedAssociazioni ? JSON.parse(savedAssociazioni) : {};
+        }
+
+    </script>
+</body>
+
+</html>
