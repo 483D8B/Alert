@@ -859,19 +859,30 @@
                 saveAlarmsOrderToLocalStorage();
             }
         });
-
         // Function to load alarms from localStorage
         function loadAlarmsFromLocalStorage() {
             var savedAlarms = JSON.parse(localStorage.getItem('alarms')) || [];
+            const currentDay = new Date().toISOString().split('T')[0];
+
+            // Filter out alarms from previous days
+            var todayAlarms = savedAlarms.filter(alarm => alarm.day === currentDay);
 
             // Sort the alarms by time
-            savedAlarms.sort(function (a, b) {
+            todayAlarms.sort(function (a, b) {
                 return new Date('1970-01-01T' + a.time) - new Date('1970-01-01T' + b.time);
             });
 
-            savedAlarms.forEach(function (alarm) {
+            // Clear existing alarms from DOM
+            alarmsContainer.innerHTML = '';
+
+            // Add only today's alarms to DOM
+            todayAlarms.forEach(function (alarm) {
                 addAlarmToDOM(alarm);
             });
+
+            // Save only today's alarms back to localStorage
+            localStorage.setItem('alarms', JSON.stringify(todayAlarms));
+
             // Save the order after loading
             saveAlarmsOrderToLocalStorage();
         }
@@ -879,28 +890,32 @@
         // Function to check alarm times and handle secure reminders
         function checkAlarmTimes() {
             var currentDateTime = new Date();
+            const currentDay = currentDateTime.toISOString().split('T')[0];
 
             // Check each alarm
             document.querySelectorAll('.alarm').forEach(function (alarmElement) {
                 var alarmId = alarmElement.getAttribute('data-alarm-id');
-                var alarmData = JSON.parse(localStorage.getItem('alarms')).find(alarm => alarm.id == alarmId);
-                var alarmDateTime = new Date(currentDateTime.toDateString() + ' ' + alarmData.time);
+                var savedAlarms = JSON.parse(localStorage.getItem('alarms')) || [];
+                var alarmData = savedAlarms.find(alarm => alarm.id == alarmId);
 
-                // Get the state div for blinking
+                if (!alarmData || alarmData.day !== currentDay) {
+                    // Remove alarm element if it's from a previous day
+                    alarmElement.remove();
+                    return;
+                }
+
+                var alarmDateTime = new Date(currentDateTime.toDateString() + ' ' + alarmData.time);
                 var stateDiv = alarmElement.querySelector('.alarm-state');
 
-                // Check if the current day is the same as the saved day
-                if (currentDateTime >= alarmDateTime && alarmData.day === currentDateTime.toISOString().split('T')[0]) {
-                    stateDiv.classList.add('blinking'); // Apply blinking class to the state div
-
-                    // Set a timeout for 5 minutes after the alarm time
-                    var reminderTime = new Date(alarmDateTime.getTime() + 5 * 60 * 1000); // 5 minutes later
+                if (currentDateTime >= alarmDateTime) {
+                    stateDiv.classList.add('blinking');
+                    var reminderTime = new Date(alarmDateTime.getTime() + 5 * 60 * 1000);
                     if (currentDateTime >= reminderTime) {
-                        alarmElement.classList.add('secure-reminder'); // Add secure reminder class to the alarm
+                        alarmElement.classList.add('secure-reminder');
                     }
                 } else {
-                    stateDiv.classList.remove('blinking'); // Remove blinking class if not active
-                    alarmElement.classList.remove('secure-reminder'); // Remove secure reminder class if not active
+                    stateDiv.classList.remove('blinking');
+                    alarmElement.classList.remove('secure-reminder');
                 }
             });
         }
