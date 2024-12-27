@@ -663,6 +663,8 @@
             editButton.textContent = 'Edit';
             editButton.classList.add('edit-alarm-btn');
 
+            document.getElementById('saveAlarm').textContent = 'Aggiungi';
+
             editButton.addEventListener('click', function () {
                 editAlarm(alarm);
             });
@@ -799,6 +801,8 @@
         // Show modal when editing an existing alarm
         function editAlarm(alarm) {
             editingAlarmId = alarm.id;
+
+            document.getElementById('saveAlarm').textContent = 'Salva';
 
             // Prendi l'orario aggiornato dall'elemento DOM
             const timeElement = document.querySelector(`.alarm[data-alarm-id='${alarm.id}'] .alarm-time`);
