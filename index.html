@@ -6,7 +6,7 @@
 
     <meta charset="utf-8">
     <meta http-equiv="content-language" content="en">
-    <title>~~</title>
+    <title>~~Reminders~~</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -604,6 +604,7 @@
 
                     // Update the DOM with the new alarm data
                     updateAlarmInDOM(savedAlarms[alarmIndex]);
+                    sortAlarmsInDOM();
                 }
             }
 
@@ -797,14 +798,17 @@
 
         // Show modal when editing an existing alarm
         function editAlarm(alarm) {
-            editingAlarmId = alarm.id; // Set the ID of the alarm being edited
+            editingAlarmId = alarm.id;
 
-            // Populate the modal fields with the alarm data
-            document.getElementById('alarmTime').value = alarm.time;
+            // Prendi l'orario aggiornato dall'elemento DOM
+            const timeElement = document.querySelector(`.alarm[data-alarm-id='${alarm.id}'] .alarm-time`);
+            const currentTime = timeElement ? timeElement.textContent : alarm.time;
+
+            document.getElementById('alarmTime').value = currentTime;
             document.getElementById('alarmMessage').value = alarm.message;
             document.getElementById('selettiva').value = alarm.selettiva;
 
-            alarmModal.style.display = 'block'; // Show the modal
+            alarmModal.style.display = 'block';
         }
 
 
